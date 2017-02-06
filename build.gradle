@@ -1,0 +1,47 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.1.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+        classpath('org.codehaus.groovy:groovy-all:2.4.7')
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'groovy'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+jar {
+	baseName = 'RangeMap'
+	version = '0.0.1-SNAPSHOT'
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-actuator')
+	compile('org.springframework.boot:spring-boot-actuator-docs')
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.codehaus.groovy:groovy-all:2.4.7')
+	compile('com.google.guava:guava:13.0.1')
+    compile('com.jayway.jsonpath:json-path:2.2.0')
+
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
+    testCompile(
+                'junit:junit:4.12',
+                'org.codehaus.groovy:groovy-all:2.4.4',
+                'org.spockframework:spock-core:1.0-groovy-2.4'
+        )
+    testCompile('org.assertj:assertj-core:3.6.2')
+    testRuntime "cglib:cglib-nodep:3.2.4"
+}
