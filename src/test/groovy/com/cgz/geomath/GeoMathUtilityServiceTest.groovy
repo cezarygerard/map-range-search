@@ -11,8 +11,6 @@ import static org.assertj.core.api.Assertions.assertThat
  */
 class GeoMathUtilityServiceTest extends Specification {
 
-    final double EARTH_CIRCUMFERENCE_IN_METERS = 4007500
-
     private GeoMathUtilityService geoMath = new GeoMathUtilityService()
 
     def "Returns same point for distance of zero kilometers"() {

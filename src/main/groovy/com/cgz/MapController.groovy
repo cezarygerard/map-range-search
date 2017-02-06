@@ -22,8 +22,10 @@ class MapController {
     }
 
     @RequestMapping(path = "/timedRange", method = RequestMethod.GET)
-    List<Point> getPoints(
-            @RequestParam double latitude, @RequestParam double longitude, @RequestParam long timeInMinutes) {
+    List<Point> getPoints(@RequestParam double latitude,
+                          @RequestParam double longitude,
+                          @RequestParam long timeInMinutes) {
+
         def millis = System.currentTimeMillis()
         def result = geoService.search(new Point(latitude, longitude), timeInMinutes)
         println(System.currentTimeMillis() - millis)
