@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 class RouteRefinementServiceImpl implements RouteRefinementService {
 
     private static final int MAX_ATTEMPTS = 5
-    private static final double CLOSE_ENOUGH_RESULT_EPSILON = 0.1
+    private static final double CLOSE_ENOUGH_RESULT_EPSILON = 0.15
 
     private RoutingService routingService
 
@@ -29,7 +29,7 @@ class RouteRefinementServiceImpl implements RouteRefinementService {
     @Override
     Point refinePoints(PointPair originAndDestination, double timeLimitInMinutes) {
 
-        double travelTimeInMinutes = executeRoutingService(originAndDestination.origin, originAndDestination.destination)
+        Optional<Double> travelTimeInMinutes = executeRoutingService(originAndDestination.origin, originAndDestination.destination)
 
         int attempts = 1
 
@@ -51,25 +51,32 @@ class RouteRefinementServiceImpl implements RouteRefinementService {
     }
 
     private PointPair calculateNewDestination(PointPair lastOriginAndDestination,
-                                              double travelTimeInMinutes,
+                                              Optional<Double> optionalTravelTimeInMinutes,
                                               double timeLimitInMinutes) {
 
-        double distance = lastOriginAndDestination.distanceInMeters
-        double velocity = distance / travelTimeInMinutes
-        double newDistance = timeLimitInMinutes * velocity
-        geoMath.getNewPointPair(lastOriginAndDestination.origin, newDistance, lastOriginAndDestination.azimuthInDegres)
+        optionalTravelTimeInMinutes.map({ travelTimeInMinutes ->
+            double distance = lastOriginAndDestination.distanceInMeters
+            double velocity = distance / travelTimeInMinutes
+            double newDistance = timeLimitInMinutes * velocity
+            geoMath.getNewPointPair(lastOriginAndDestination.origin, newDistance, lastOriginAndDestination.azimuthInDegres)
+        }).orElse(lastOriginAndDestination)
     }
 
-    private double executeRoutingService(Point origin, Point newDestination) {
-        return routingService.travelTimeInMinutes(origin, newDestination)
+    private Optional<Double> executeRoutingService(Point origin, Point newDestination) {
+        try {
+            return Optional.of(routingService.travelTimeInMinutes(origin, newDestination))
+        } catch (any) {
+            return Optional.empty()
+        }
     }
 
-    private boolean shouldRefine(double desired, double actual, int attempts) {
+    private boolean shouldRefine(double desired, Optional<Double> optionalTime, int attempts) {
+        double actual = optionalTime.orElse(Double.valueOf(0.0))
         boolean a = (1 - CLOSE_ENOUGH_RESULT_EPSILON) < (actual / desired)
         boolean b = (actual / desired) < 1 + CLOSE_ENOUGH_RESULT_EPSILON
         boolean withinEpsilon = a && b
-        boolean attemptsNotExeeded = attempts < MAX_ATTEMPTS
-        (!withinEpsilon) && attemptsNotExeeded
+        boolean attemptsNotExceeded = attempts < MAX_ATTEMPTS
+        ((!withinEpsilon) && attemptsNotExceeded)
     }
 }
 

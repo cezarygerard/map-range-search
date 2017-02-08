@@ -8,7 +8,9 @@ import groovy.transform.PackageScope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
-import java.util.concurrent.ForkJoinPool
+import java.util.concurrent.Callable
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.stream.Collectors
 import java.util.stream.DoubleStream
 
@@ -20,15 +22,17 @@ class GeoServiceImpl implements GeoService {
 
     static double STARTING_DISTANCE_IN_METERS_FOR_ONE_HOUR_SEARCH = 50000
 
-    static int NUMBER_OF_POINTS_FOR_HOUR_SEARCH = 36
+    static int NUMBER_OF_POINTS_FOR_HOUR_SEARCH = 54
 
     private RouteRefinementService routingService
 
     private GeoMath geoMath
 
+    private ExecutorService executor = Executors.newCachedThreadPool()
+
+
     @Autowired
     GeoServiceImpl(RouteRefinementService routingService, GeoMath geoMath) {
-
         this.routingService = routingService
         this.geoMath = geoMath
     }
@@ -37,17 +41,21 @@ class GeoServiceImpl implements GeoService {
     List<Point> search(Point start, long timeInMinutes) {
         List<PointPair> initialPoints = getInitialPoints(start, timeInMinutes)
 
-        ForkJoinPool forkJoinPool = new ForkJoinPool(20)
+        List<Callable<Point>> routingServiceTasks = generateRoutingServiceTasks(initialPoints, timeInMinutes)
 
-        List<Point> points = forkJoinPool.submit({
-            initialPoints.stream().parallel()
-                    .map({ pointPair -> new Tuple(pointPair.azimuthInDegres, routingService.refinePoints(pointPair, timeInMinutes)) })
-                    .sorted({ Tuple p1, Tuple p2 -> Double.compare(p1[0], p2[0]) })
-                    .map({ Tuple t -> t[1] })
-                    .collect(Collectors.toList())
-        }).get()
+        executor.invokeAll(routingServiceTasks).collect { it.get() }
+    }
 
-        return points
+    private List<Callable<Point>> generateRoutingServiceTasks(List<PointPair> initialPoints, long timeInMinutes) {
+        initialPoints.stream().map({ pointPair ->
+            new Callable<Point>() {
+                //TODO make it look like groovy
+                @Override
+                Point call() throws Exception {
+                    return routingService.refinePoints(pointPair, timeInMinutes)
+                }
+            }
+        }).collect(Collectors.toList())
     }
 
     @PackageScope

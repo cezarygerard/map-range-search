@@ -21,7 +21,8 @@ class GoogleMapsApi implements RoutingService {
 
     @Autowired
     GoogleMapsApi(@Value('${GoogleMapsApi.apiKey}') String apikey) {
-        urlTemplate = "https://maps.googleapis.com/maps/api/directions/json?key=${apikey}&alternatives=false&traffic_model=optimistic&departure_time=now"
+        urlTemplate = "https://maps.googleapis.com/maps/api/directions/json?key=${apikey}&alternatives=false&traffic_model=optimistic&departure_time=now&"
+        //+"mode=walking"
     }
 
     @Override
@@ -29,14 +30,17 @@ class GoogleMapsApi implements RoutingService {
 
         URL url = constructUrl(origin, destination)
         DocumentContext json = httpGetForJson(url)
-        return readTimeInMinutes(json)
+        long timeInMinutes = readTimeInMinutes(json)
+        return timeInMinutes
     }
 
     private long readTimeInMinutes(DocumentContext json) {
         try {
-            json.read(DURATION_JSON_PATH) / 60
+            long timeInSeconds = json.read(DURATION_JSON_PATH)
+            return timeInSeconds / 60
         } catch (Exception e) {
-            throw e
+            println json.jsonString()
+            throw new RoutingServiceException("Could not read json ${json.jsonString()}", e)
         }
     }
 
