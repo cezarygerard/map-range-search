@@ -8,6 +8,6 @@ import com.cgz.geomath.PointPair
  */
 interface RouteRefinementService {
 
-    Point refinePoints(PointPair originAndDestination, double routTimeLimitInMinutes)
+    Point refinePoints(PointPair originAndDestination, double routTimeLimitInMinutes, TravelMode travelMode)
 
 }

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Awesome search</title>
+    <style>
+        /* Always set the map height explicitly to define the size of the div
+         * element that contains the map. */
+        #map {
+            height: 100%;
+        }
+
+        /* Optional: Makes the sample page fill the window. */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script type="application/javascript">
+
+
+    function initMap() {
+        var position = {lat: 52.2062754, lng: 20.9104762}
+        var triangleCoords = [];
+        drawMap(position, triangleCoords);
+    }
+
+    function drawMap(position, triangleCoords) {
+
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 10,
+            center: position
+
+        });
+
+        // Construct the polygon.
+        var bermudaTriangle = new google.maps.Polygon({
+            paths: triangleCoords,
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.35
+        });
+        bermudaTriangle.setMap(map);
+
+        bermudaTriangle.addListener('click', function (e) {
+            placeMarkerAndPanTo(e.latLng, map);
+        });
+
+        map.addListener('click', function (e) {
+            placeMarkerAndPanTo(e.latLng, map);
+        });
+
+        var infowindow = new google.maps.InfoWindow();
+
+        function placeMarkerAndPanTo(latLng, map) {
+
+            marker.setPosition(latLng);
+
+            infowindow.open(marker.get('templates.map'), marker);
+            var content2 = getContent(latLng);
+            infowindow.setContent(content2);
+        }
+
+        function getContent(latLng) {
+            return '<form id="theOnlyForm" action="/timedRange" method="get">' +
+                'Transport Mode:<br>' +
+                'driving <input type="radio" name="travelMode" value="driving" checked> <br>' +
+                'walking <input type="radio" name="travelMode" value="walking"> <br>' +
+                'bicycling <input type="radio" name="travelMode" value="bicycling"> <br>' +
+                'Time limit (minutes): <input type="text" name="timeInMinutes"><br>' +
+                '<input type="text" hidden="true" name="latitude" value=' + latLng.lat() + '><br>' +
+                '<input type="text" hidden="true" name="longitude" value=' + latLng.lng() + '><br>' +
+                '<button onclick="submitWithAjax(' + latLng.lat() + ',' + latLng.lng() + '); return false;">Search</button>' +
+                '</form>'
+        }
+
+        var marker = new google.maps.Marker({
+            position: position,
+            map: map
+        });
+    }
+
+    function submitWithAjax(latitude, longitude) {
+        var form = $("#theOnlyForm");
+
+        $.ajax({
+            type: "GET",
+            url: "/timedRange",
+            data: form.serialize(), // serializes the form's elements.
+            success: function (data) {
+                var position = {lat: latitude, lng: longitude}
+                drawMap(position, data)
+            }
+        });
+
+    }
+
+
+</script>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUWsURlqKfScZYZadeij-OCGsKwGpwNwM&callback=initMap">
+</script>
+</body>
+</html>

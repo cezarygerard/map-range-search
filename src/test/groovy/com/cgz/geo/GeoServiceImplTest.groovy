@@ -4,6 +4,7 @@ import com.cgz.geomath.GeoMath
 import com.cgz.geomath.Point
 import com.cgz.geomath.PointPair
 import com.cgz.routing.RouteRefinementService
+import com.cgz.routing.TravelMode
 import spock.lang.Specification
 
 import static com.cgz.Location.PARIS
@@ -24,6 +25,8 @@ class GeoServiceImplTest extends Specification {
 
     PointPair somePointPair = new PointPair(PARIS.asPoint(), PARIS.asPoint(), 0, 0)
 
+    TravelMode anyTravelMode = TravelMode.DRIVING
+
     final long ZERO_MINUTES = 0
 
     final long HOUR = 60
@@ -31,6 +34,7 @@ class GeoServiceImplTest extends Specification {
     def "Returns initial points"() {
         when:
         def points = geoService.getInitialPoints(PARIS.asPoint(), HOUR)
+
         then:
         assertThat(points).isNotEmpty()
     }
@@ -38,6 +42,7 @@ class GeoServiceImplTest extends Specification {
     def "For time limit of 0 returns single element list of initial points"() {
         when:
         List<PointPair> points = geoService.getInitialPoints(PARIS.asPoint(), ZERO_MINUTES)
+
         then:
         1 * geoMath.getNewPointPair(PARIS.asPoint(), _, _) >> somePointPair
         assertThat(points).hasSize(1)
@@ -47,7 +52,8 @@ class GeoServiceImplTest extends Specification {
 
     def "For each of initial pints geoService executes refinement"() {
         when:
-        List<Point> result = geoService.search(PARIS.asPoint(), HOUR)
+        List<Point> result = geoService.search(PARIS.asPoint(), HOUR, anyTravelMode)
+
         then:
         NUMBER_OF_POINTS_FOR_HOUR_SEARCH * routingService.refinePoints({ it.origin == PARIS.asPoint() }, {
             it == HOUR

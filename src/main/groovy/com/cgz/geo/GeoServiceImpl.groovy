@@ -4,6 +4,7 @@ import com.cgz.geomath.GeoMath
 import com.cgz.geomath.Point
 import com.cgz.geomath.PointPair
 import com.cgz.routing.RouteRefinementService
+import com.cgz.routing.TravelMode
 import groovy.transform.PackageScope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -20,9 +21,15 @@ import java.util.stream.DoubleStream
 @Service
 class GeoServiceImpl implements GeoService {
 
-    static double STARTING_DISTANCE_IN_METERS_FOR_ONE_HOUR_SEARCH = 50000
+    static double DRIVING_SPEED_METERS_PH = 50000D
 
-    static int NUMBER_OF_POINTS_FOR_HOUR_SEARCH = 54
+    static double BIKING_SPEED_METERS_PH = 15000D
+
+    static double WALKING_SPEED_METERS_PH = 5000D
+
+    static long NUMBER_OF_POINTS_FOR_HOUR_SEARCH = 36L
+
+    static long MIN_NUMBER_OF_POINTS = 18L
 
     private RouteRefinementService routingService
 
@@ -38,31 +45,43 @@ class GeoServiceImpl implements GeoService {
     }
 
     @Override
-    List<Point> search(Point start, long timeInMinutes) {
-        List<PointPair> initialPoints = getInitialPoints(start, timeInMinutes)
+    List<Point> search(Point start, long timeInMinutes, TravelMode travelMode) {
 
-        List<Callable<Point>> routingServiceTasks = generateRoutingServiceTasks(initialPoints, timeInMinutes)
+        double initialDistance = calculateInitialDistance(timeInMinutes, travelMode);
+
+        List<PointPair> initialPoints = getInitialPoints(start, timeInMinutes, initialDistance)
+
+        List<Callable<Point>> routingServiceTasks = generateRoutingServiceTasks(initialPoints, timeInMinutes, travelMode)
 
         executor.invokeAll(routingServiceTasks).collect { it.get() }
     }
 
-    private List<Callable<Point>> generateRoutingServiceTasks(List<PointPair> initialPoints, long timeInMinutes) {
+    double calculateInitialDistance(long timeInMinutes, TravelMode travelMode) {
+        if (TravelMode.DRIVING.equals(travelMode)) {
+            return (DRIVING_SPEED_METERS_PH * timeInMinutes) / 60.0
+        } else if (TravelMode.BICYCLING.equals(travelMode)) {
+            return (BIKING_SPEED_METERS_PH * timeInMinutes) / 60.0
+        }
+
+        return (WALKING_SPEED_METERS_PH * timeInMinutes) / 60.0
+    }
+
+    private List<Callable<Point>> generateRoutingServiceTasks(List<PointPair> initialPoints, long timeInMinutes, TravelMode travelMode) {
         initialPoints.stream().map({ pointPair ->
             new Callable<Point>() {
                 //TODO make it look like groovy
                 @Override
                 Point call() throws Exception {
-                    return routingService.refinePoints(pointPair, timeInMinutes)
+                    return routingService.refinePoints(pointPair, timeInMinutes, travelMode)
                 }
             }
         }).collect(Collectors.toList())
     }
 
     @PackageScope
-    List<PointPair> getInitialPoints(Point startingPoint, long timeInMinutes) {
+    List<PointPair> getInitialPoints(Point startingPoint, long timeInMinutes, double initialDistance) {
         int numberOfPoints = getNumberOfInitialsPoints(timeInMinutes)
         double degreesPerPoint = 360.0 / numberOfPoints
-        double initialDistance = (STARTING_DISTANCE_IN_METERS_FOR_ONE_HOUR_SEARCH * timeInMinutes) / 60.0
 
         return calculateInitialPointsAroundStartingPoint(startingPoint, numberOfPoints, degreesPerPoint, initialDistance)
     }
@@ -72,7 +91,8 @@ class GeoServiceImpl implements GeoService {
             return 1
         }
 
-        NUMBER_OF_POINTS_FOR_HOUR_SEARCH * timeInMinutes / 60
+        long numberOfPoints = NUMBER_OF_POINTS_FOR_HOUR_SEARCH * timeInMinutes / 60
+        Math.max(MIN_NUMBER_OF_POINTS, numberOfPoints)
     }
 
     private List<PointPair> calculateInitialPointsAroundStartingPoint(Point startingPoint, int numberOfPoints, double degreesPerPoint, double initialDistance) {
@@ -82,3 +102,5 @@ class GeoServiceImpl implements GeoService {
                 .collect(Collectors.toList())
     }
 }
+
+

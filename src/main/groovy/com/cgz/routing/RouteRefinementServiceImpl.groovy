@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 class RouteRefinementServiceImpl implements RouteRefinementService {
 
     private static final int MAX_ATTEMPTS = 5
-    private static final double CLOSE_ENOUGH_RESULT_EPSILON = 0.15
+    private static final double CLOSE_ENOUGH_RESULT_EPSILON = 0.2
 
     private RoutingService routingService
 
@@ -27,9 +27,9 @@ class RouteRefinementServiceImpl implements RouteRefinementService {
     }
 
     @Override
-    Point refinePoints(PointPair originAndDestination, double timeLimitInMinutes) {
+    Point refinePoints(PointPair originAndDestination, double timeLimitInMinutes, TravelMode travelMode) {
 
-        Optional<Double> travelTimeInMinutes = executeRoutingService(originAndDestination.origin, originAndDestination.destination)
+        Optional<Double> travelTimeInMinutes = executeRoutingService(originAndDestination.origin, originAndDestination.destination, travelMode)
 
         int attempts = 1
 
@@ -40,7 +40,7 @@ class RouteRefinementServiceImpl implements RouteRefinementService {
                     travelTimeInMinutes,
                     timeLimitInMinutes)
 
-            travelTimeInMinutes = executeRoutingService(originAndDestination.origin, newDestination.destination)
+            travelTimeInMinutes = executeRoutingService(originAndDestination.origin, newDestination.destination, travelMode)
 
             lastDestination = newDestination
 
@@ -62,10 +62,10 @@ class RouteRefinementServiceImpl implements RouteRefinementService {
         }).orElse(lastOriginAndDestination)
     }
 
-    private Optional<Double> executeRoutingService(Point origin, Point newDestination) {
+    private Optional<Double> executeRoutingService(Point origin, Point newDestination, TravelMode travelMode) {
         try {
-            return Optional.of(routingService.travelTimeInMinutes(origin, newDestination))
-        } catch (any) {
+            return Optional.of(routingService.travelTimeInMinutes(origin, newDestination, travelMode))
+        } catch (RoutingServiceException rse) {
             return Optional.empty()
         }
     }

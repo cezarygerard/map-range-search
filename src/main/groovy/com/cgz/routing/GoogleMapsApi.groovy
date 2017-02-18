@@ -20,18 +20,22 @@ class GoogleMapsApi implements RoutingService {
     private static volatile int counter = 0
 
     @Autowired
-    GoogleMapsApi(@Value('${GoogleMapsApi.apiKey}') String apikey) {
-        urlTemplate = "https://maps.googleapis.com/maps/api/directions/json?key=${apikey}&alternatives=false&traffic_model=optimistic&departure_time=now&"
-        //+"mode=walking"
+    GoogleMapsApi(@Value('${GoogleMapsApi.apiKey}') String apikey, @Value('${GoogleMapsApi.apiHost}') String apiHost) {
+        urlTemplate = "${apiHost}/maps/api/directions/json?key=${apikey}&alternatives=false&traffic_model=optimistic&departure_time=now&"
     }
 
     @Override
-    long travelTimeInMinutes(Point origin, Point destination) {
+    long travelTimeInMinutes(Point origin, Point destination, TravelMode travelMode) {
 
-        URL url = constructUrl(origin, destination)
-        DocumentContext json = httpGetForJson(url)
-        long timeInMinutes = readTimeInMinutes(json)
-        return timeInMinutes
+        try {
+            URL url = constructUrl(origin, destination, travelMode)
+            DocumentContext json = httpGetForJson(url)
+            long timeInMinutes = readTimeInMinutes(json)
+            return timeInMinutes
+        } catch (Exception e) {
+            e.printStackTrace()
+            throw new RoutingServiceException("Could not read json", e)
+        }
     }
 
     private long readTimeInMinutes(DocumentContext json) {
@@ -52,8 +56,11 @@ class GoogleMapsApi implements RoutingService {
         }
     }
 
-    private URL constructUrl(Point origin, Point destination) {
-        String urlString = urlTemplate + "&origin=${origin.lat},${origin.lng}&destination=${destination.lat},${destination.lng}".toString()
+    private URL constructUrl(Point origin, Point destination, TravelMode travelMode) {
+        String urlString = urlTemplate + "&origin=${origin.lat},${origin.lng}" +
+                "&destination=${destination.lat},${destination.lng}" +
+                "&mode=${travelMode.value}".toString()
+
         new URL(urlString)
     }
 }

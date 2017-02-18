@@ -13,8 +13,9 @@ import static com.cgz.Location.WARSAW_POINT
 class GoogleMapsApiTest extends Specification {
 
     @Shared
-            apiKey = 'kluczyk'
-
+            apiKey = 'someKey'
+    @Shared
+            apiHost = 'http://host'
     def tripTimeInMinutes = 860
 
     String jsonString = """{"routes":[{"legs":[{"duration":{"text":"14 hours 20 mins","value":${
@@ -23,7 +24,7 @@ class GoogleMapsApiTest extends Specification {
 
     def json = JsonPath.parse(jsonString)
 
-    GoogleMapsApi googleMapsApi = Spy(GoogleMapsApi, constructorArgs: ['kluczyk']) {
+    GoogleMapsApi googleMapsApi = Spy(GoogleMapsApi, constructorArgs: [apiKey, apiHost]) {
         httpGetForJson(_) >> json
     }
 
@@ -43,7 +44,7 @@ class GoogleMapsApiTest extends Specification {
         googleMapsApi.httpGetForJson({ it.toString().contains(urlFragment) }) >> json
 
         where:
-        urlFragment << ["https://maps.googleapis.com/maps/api/directions/json?",
+        urlFragment << ["https://${apiHost}/maps/api/directions/json?",
                         "key=${apiKey}",
                         "&alternatives=false&traffic_model=optimistic&departure_time=now",
                         "&origin=${WARSAW_POINT.lat},${WARSAW_POINT.lng}",

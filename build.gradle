@@ -12,8 +12,9 @@ buildscript {
 }
 
 apply plugin: 'groovy'
-apply plugin: 'eclipse'
+//apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'idea'
 
 jar {
 	baseName = 'RangeMap'
@@ -32,8 +33,8 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-actuator-docs')
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile('org.codehaus.groovy:groovy-all:2.4.7')
-	compile('com.google.guava:guava:13.0.1')
-    compile('com.jayway.jsonpath:json-path:2.2.0')
+	compile 'com.google.guava:guava:21.0'
+	compile('com.jayway.jsonpath:json-path:2.2.0')
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
@@ -43,5 +44,6 @@ dependencies {
                 'org.spockframework:spock-core:1.0-groovy-2.4'
         )
     testCompile('org.assertj:assertj-core:3.6.2')
-    testRuntime "cglib:cglib-nodep:3.2.4"
+	testCompile "com.github.tomakehurst:wiremock-standalone:2.5.1"
+	testRuntime "cglib:cglib-nodep:3.2.4"
 }

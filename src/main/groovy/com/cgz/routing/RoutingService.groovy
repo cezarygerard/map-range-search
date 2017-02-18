@@ -7,6 +7,6 @@ import com.cgz.geomath.Point
  */
 interface RoutingService {
 
-    long travelTimeInMinutes(Point origin, Point destination)
+    long travelTimeInMinutes(Point origin, Point destination, TravelMode travelMode)
 
 }
