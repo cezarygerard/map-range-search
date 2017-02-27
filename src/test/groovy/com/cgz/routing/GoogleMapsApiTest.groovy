@@ -7,16 +7,17 @@ import spock.lang.Specification
 import static com.cgz.Location.PARIS_POINT
 import static com.cgz.Location.WARSAW_POINT
 
-/**
- * Created by czarek on 05.02.17.
- */
 class GoogleMapsApiTest extends Specification {
 
     @Shared
-            apiKey = 'someKey'
+    String apiKey = 'someKey'
+
     @Shared
-            apiHost = 'http://host'
+    String apiHost = 'http://host'
+
     def tripTimeInMinutes = 860
+
+    TravelMode anyTravelMode = TravelMode.WALKING
 
     String jsonString = """{"routes":[{"legs":[{"duration":{"text":"14 hours 20 mins","value":${
         tripTimeInMinutes * 60
@@ -38,7 +39,7 @@ class GoogleMapsApiTest extends Specification {
 
     def "url is constructed"() {
         when:
-        googleMapsApi.travelTimeInMinutes(WARSAW_POINT, PARIS_POINT)
+        googleMapsApi.travelTimeInMinutes(WARSAW_POINT, PARIS_POINT, anyTravelMode)
 
         then:
         googleMapsApi.httpGetForJson({ it.toString().contains(urlFragment) }) >> json
@@ -54,7 +55,7 @@ class GoogleMapsApiTest extends Specification {
 
     def "travel Time is extracted"() {
         when:
-        def travelTimeInMinutes = googleMapsApi.travelTimeInMinutes(WARSAW_POINT, PARIS_POINT)
+        def travelTimeInMinutes = googleMapsApi.travelTimeInMinutes(WARSAW_POINT, PARIS_POINT, anyTravelMode)
 
         then:
         travelTimeInMinutes == tripTimeInMinutes

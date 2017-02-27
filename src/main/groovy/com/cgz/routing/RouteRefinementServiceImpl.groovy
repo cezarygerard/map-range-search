@@ -3,22 +3,23 @@ package com.cgz.routing
 import com.cgz.geomath.GeoMath
 import com.cgz.geomath.Point
 import com.cgz.geomath.PointPair
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
-/**
- * Created by czarek on 04.02.17.
- */
 @Service
 class RouteRefinementServiceImpl implements RouteRefinementService {
 
-    private static final int MAX_ATTEMPTS = 5
+    static final int MAX_ATTEMPTS = 5
+
     private static final double CLOSE_ENOUGH_RESULT_EPSILON = 0.2
 
     private RoutingService routingService
 
     private GeoMath geoMath
 
+    private static final Logger logger = LoggerFactory.getLogger(RouteRefinementServiceImpl);
 
     @Autowired
     RouteRefinementServiceImpl(RoutingService routingService, GeoMath geoMath) {
@@ -54,6 +55,7 @@ class RouteRefinementServiceImpl implements RouteRefinementService {
                                               Optional<Double> optionalTravelTimeInMinutes,
                                               double timeLimitInMinutes) {
 
+
         optionalTravelTimeInMinutes.map({ travelTimeInMinutes ->
             double distance = lastOriginAndDestination.distanceInMeters
             double velocity = distance / travelTimeInMinutes
@@ -66,6 +68,13 @@ class RouteRefinementServiceImpl implements RouteRefinementService {
         try {
             return Optional.of(routingService.travelTimeInMinutes(origin, newDestination, travelMode))
         } catch (RoutingServiceException rse) {
+            logger.warn("routingService travelTimeInMinutes failed, arguments: {} {} {}",
+                    origin,
+                    newDestination,
+                    travelMode,
+                    rse
+            )
+
             return Optional.empty()
         }
     }
