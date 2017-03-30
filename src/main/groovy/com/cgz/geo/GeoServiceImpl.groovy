@@ -43,7 +43,6 @@ class GeoServiceImpl implements GeoService {
     private List<Callable<Point>> generateRoutingServiceTasks(List<PointPair> initialPoints, long timeInMinutes, TravelMode travelMode) {
         initialPoints.stream().map({ pointPair ->
             new Callable<Point>() {
-                //TODO make it look like groovy
                 @Override
                 Point call() throws Exception {
                     return routingService.refinePoints(pointPair, timeInMinutes, travelMode)

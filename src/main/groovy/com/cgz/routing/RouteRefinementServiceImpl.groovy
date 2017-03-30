@@ -13,7 +13,7 @@ class RouteRefinementServiceImpl implements RouteRefinementService {
 
     static final int MAX_ATTEMPTS = 5
 
-    private static final double CLOSE_ENOUGH_RESULT_EPSILON = 0.2
+    private static final double CLOSE_ENOUGH_RESULT_EPSILON = 0.05
 
     private RoutingService routingService
 

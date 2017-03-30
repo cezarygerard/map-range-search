@@ -1,6 +1,9 @@
-package com.cgz.routing
+package com.cgz.routing.googlemaps
 
 import com.cgz.geomath.Point
+import com.cgz.routing.RoutingService
+import com.cgz.routing.RoutingServiceException
+import com.cgz.routing.TravelMode
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,21 +22,31 @@ class GoogleMapsApi implements RoutingService {
 
     private static volatile int counter = 0
 
+    private RouteCache cache;
+
     @Autowired
-    GoogleMapsApi(@Value('${GoogleMapsApi.apiKey}') String apikey, @Value('${GoogleMapsApi.apiHost}') String apiHost) {
+    GoogleMapsApi(
+            @Value('${GoogleMapsApi.apiKey}') String apikey,
+            @Value('${GoogleMapsApi.apiHost}') String apiHost, RouteCache cache) {
         urlTemplate = "${apiHost}/maps/api/directions/json?key=${apikey}&alternatives=false&traffic_model=optimistic&departure_time=now&"
+        this.cache = cache;
     }
 
     @Override
     long travelTimeInMinutes(Point origin, Point destination, TravelMode travelMode) {
 
+        Optional<Long> result = cache.get(origin, destination)
+        return result.orElseGet({ invokeService(origin, destination, travelMode) })
+    }
+
+    private long invokeService(Point origin, Point destination, TravelMode travelMode) {
         try {
             URL url = constructUrl(origin, destination, travelMode)
             DocumentContext json = httpGetForJson(url)
             long timeInMinutes = readTimeInMinutes(json)
+            cache.put(origin, destination, timeInMinutes)
             return timeInMinutes
         } catch (Exception e) {
-            e.printStackTrace()
             throw new RoutingServiceException("Could not read json", e)
         }
     }
@@ -43,7 +56,6 @@ class GoogleMapsApi implements RoutingService {
             long timeInSeconds = json.read(DURATION_JSON_PATH)
             return timeInSeconds / 60
         } catch (Exception e) {
-            println json.jsonString()
             throw new RoutingServiceException("Could not read json ${json.jsonString()}", e)
         }
     }
