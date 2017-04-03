@@ -1,9 +1,12 @@
 package com.cgz.routing.googlemaps
 
 import com.cgz.geomath.Point
+import com.cgz.routing.TravelMode
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.PackageScope
+import groovy.transform.ToString
 import org.springframework.stereotype.Service
 
 import java.math.RoundingMode
@@ -16,64 +19,44 @@ class RouteCache {
     AtomicInteger getCounter = new AtomicInteger(0);
     AtomicInteger putCounter = new AtomicInteger(0);
 
-    static final int PRECISION = 4
-    //TODO make sure cache takes TRAVEL MODE into account
+    static final int PRECISION = 3
 
     //TODO replace with configurable values
-    private Cache<CacheKey, Long> cache = CacheBuilder.newBuilder().initialCapacity(10000).maximumSize(1_000_000).build();
+    private Cache<CacheKey, Long> cache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(1_000_000).build();
 
-    Optional<Long> get(Point origin, Point destination) {
-        CacheKey cacheKey = new CacheKey(origin, destination)
+    Optional<Long> get(Point origin, Point destination, TravelMode mode) {
+        CacheKey cacheKey = new CacheKey(origin, destination, mode)
         Long value = cache.getIfPresent(cacheKey)
 
         if (value != null) {
-            def val = getCounter.incrementAndGet()
+            println "cache hit" + getCounter.incrementAndGet()
         }
 
         return Optional.ofNullable(value)
     }
 
-    void put(Point origin, Point destination, long time) {
-        CacheKey cacheKey = new CacheKey(origin, destination)
+    void put(Point origin, Point destination, long time, TravelMode mode) {
+        CacheKey cacheKey = new CacheKey(origin, destination, mode)
         cache.put(cacheKey, time)
         putCounter.incrementAndGet()
     }
 
     @PackageScope
+    @EqualsAndHashCode
+    @ToString
     class CacheKey {
         BigDecimal originLat
         BigDecimal originLng
         BigDecimal destinationLat
         BigDecimal destinationLng
+        TravelMode mode
 
-        CacheKey(Point origin, Point destination) {
+        CacheKey(Point origin, Point destination, TravelMode mode) {
             this.originLat = new BigDecimal(origin.lat).setScale(PRECISION, RoundingMode.HALF_UP)
             this.originLng = new BigDecimal(origin.lng).setScale(PRECISION, RoundingMode.HALF_UP)
             this.destinationLat = new BigDecimal(destination.lat).setScale(PRECISION, RoundingMode.HALF_UP)
             this.destinationLng = new BigDecimal(destination.lng).setScale(PRECISION, RoundingMode.HALF_UP)
-        }
-
-        boolean equals(o) {
-            if (this.is(o)) return true
-            if (getClass() != o.class) return false
-
-            CacheKey cacheKey = (CacheKey) o
-
-            if (!destinationLat.equals(cacheKey.destinationLat)) return false
-            if (!destinationLng.equals(cacheKey.destinationLng)) return false
-            if (!originLat.equals(cacheKey.originLat)) return false
-            if (!originLng.equals(cacheKey.originLng)) return false
-
-            return true
-        }
-
-        int hashCode() {
-            int result
-            result = (originLat != null ? originLat.hashCode() : 0)
-            result = 31 * result + (originLng != null ? originLng.hashCode() : 0)
-            result = 31 * result + (destinationLat != null ? destinationLat.hashCode() : 0)
-            result = 31 * result + (destinationLng != null ? destinationLng.hashCode() : 0)
-            return result
+            this.mode = mode
         }
     }
 }

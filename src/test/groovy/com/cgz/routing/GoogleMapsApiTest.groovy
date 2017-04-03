@@ -43,7 +43,7 @@ class GoogleMapsApiTest extends Specification {
 
     def "url is constructed"() {
         given:
-        routeCache.get(_, _) >> Optional.empty()
+        routeCache.get(_, _, _) >> Optional.empty()
 
         when:
         googleMapsApi.travelTimeInMinutes(WARSAW_POINT, PARIS_POINT, anyTravelMode)
@@ -62,7 +62,7 @@ class GoogleMapsApiTest extends Specification {
 
     def "travel Time is extracted"() {
         given:
-        routeCache.get(_, _) >> Optional.empty()
+        routeCache.get(_, _, _) >> Optional.empty()
 
         when:
         def travelTimeInMinutes = googleMapsApi.travelTimeInMinutes(WARSAW_POINT, PARIS_POINT, anyTravelMode)
@@ -76,16 +76,16 @@ class GoogleMapsApiTest extends Specification {
         def travelTimeInMinutes = googleMapsApi.travelTimeInMinutes(WARSAW_POINT, PARIS_POINT, anyTravelMode)
 
         then:
-        1 * routeCache.get(_, _) >> Optional.empty()
+        1 * routeCache.get(_, _, _) >> Optional.empty()
     }
 
     def "successful time estimation goes to cache"() {
         when:
-        def travelTimeInMinutes = googleMapsApi.travelTimeInMinutes(WARSAW_POINT, PARIS_POINT, anyTravelMode)
+        googleMapsApi.travelTimeInMinutes(WARSAW_POINT, PARIS_POINT, anyTravelMode)
 
         then:
-        1 * routeCache.get(_, _) >> Optional.empty()
-        1 * routeCache.put(WARSAW_POINT, PARIS_POINT, tripTimeInMinutes)
+        1 * routeCache.get(_, _, _) >> Optional.empty()
+        1 * routeCache.put(WARSAW_POINT, PARIS_POINT, tripTimeInMinutes, anyTravelMode)
     }
 
 

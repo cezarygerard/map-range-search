@@ -35,7 +35,7 @@ class GoogleMapsApi implements RoutingService {
     @Override
     long travelTimeInMinutes(Point origin, Point destination, TravelMode travelMode) {
 
-        Optional<Long> result = cache.get(origin, destination)
+        Optional<Long> result = cache.get(origin, destination, travelMode)
         return result.orElseGet({ invokeService(origin, destination, travelMode) })
     }
 
@@ -44,7 +44,7 @@ class GoogleMapsApi implements RoutingService {
             URL url = constructUrl(origin, destination, travelMode)
             DocumentContext json = httpGetForJson(url)
             long timeInMinutes = readTimeInMinutes(json)
-            cache.put(origin, destination, timeInMinutes)
+            cache.put(origin, destination, timeInMinutes, travelMode)
             return timeInMinutes
         } catch (Exception e) {
             throw new RoutingServiceException("Could not read json", e)

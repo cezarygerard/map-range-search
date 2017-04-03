@@ -24,9 +24,22 @@
 <div id="map"></div>
 <script type="application/javascript">
 
+    var cdefaultCords = {coords: {latitude: 52.229628, longitude: 21.011789}};
 
-    function initMap() {
-        var position = {lat: 52.2062754, lng: 20.9104762}
+    function initGeolocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(initMap, (function () {
+                initMap(cdefaultCords);
+            }));
+        } else {
+            initMap(cdefaultCords);
+        }
+    }
+
+    function initMap(coords) {
+        console.log(coords)
+        console.log(coords.coords)
+        var position = {lat: coords.coords.latitude, lng: coords.coords.longitude}
         var triangleCoords = [];
         drawMap(position, triangleCoords);
     }
@@ -40,7 +53,7 @@
         });
 
         // Construct the polygon.
-        var bermudaTriangle = new google.maps.Polygon({
+        var polygon = new google.maps.Polygon({
             paths: triangleCoords,
             strokeColor: '#FF0000',
             strokeOpacity: 0.8,
@@ -48,9 +61,9 @@
             fillColor: '#FF0000',
             fillOpacity: 0.35
         });
-        bermudaTriangle.setMap(map);
+        polygon.setMap(map);
 
-        bermudaTriangle.addListener('click', function (e) {
+        polygon.addListener('click', function (e) {
             placeMarkerAndPanTo(e.latLng, map);
         });
 
@@ -106,7 +119,7 @@
 
 </script>
 <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUWsURlqKfScZYZadeij-OCGsKwGpwNwM&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUWsURlqKfScZYZadeij-OCGsKwGpwNwM&callback=initGeolocation">
 </script>
 </body>
 </html>
