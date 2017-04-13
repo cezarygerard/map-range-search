@@ -7,12 +7,5 @@ import spock.lang.Specification
  */
 class MapControllerTest extends Specification {
 
-//    def "GetPoints"() {
-//        when:
-//        def msg = 'not implemented, must implement'
-//
-//        then:
-//        throw new NotImplementedException(msg)
-//
-//    }
+//TODO test properly
 }

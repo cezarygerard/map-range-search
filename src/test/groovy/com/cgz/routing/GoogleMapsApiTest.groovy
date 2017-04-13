@@ -1,7 +1,6 @@
 package com.cgz.routing
 
 import com.cgz.routing.googlemaps.GoogleMapsApi
-import com.cgz.routing.googlemaps.RouteCache
 import com.jayway.jsonpath.JsonPath
 import spock.lang.Shared
 import spock.lang.Specification
@@ -17,8 +16,6 @@ class GoogleMapsApiTest extends Specification {
     @Shared
     String apiHost = 'http://host'
 
-    RouteCache routeCache = Mock(RouteCache)
-
     def tripTimeInMinutes = 860
 
     TravelMode anyTravelMode = TravelMode.WALKING
@@ -29,7 +26,7 @@ class GoogleMapsApiTest extends Specification {
 
     def json = JsonPath.parse(jsonString)
 
-    GoogleMapsApi googleMapsApi = Spy(GoogleMapsApi, constructorArgs: [apiKey, apiHost, routeCache]) {
+    GoogleMapsApi googleMapsApi = Spy(GoogleMapsApi, constructorArgs: [apiKey, apiHost]) {
         httpGetForJson(_) >> json
     }
 
@@ -42,9 +39,6 @@ class GoogleMapsApiTest extends Specification {
     }
 
     def "url is constructed"() {
-        given:
-        routeCache.get(_, _, _) >> Optional.empty()
-
         when:
         googleMapsApi.travelTimeInMinutes(WARSAW_POINT, PARIS_POINT, anyTravelMode)
 
@@ -61,9 +55,6 @@ class GoogleMapsApiTest extends Specification {
     }
 
     def "travel Time is extracted"() {
-        given:
-        routeCache.get(_, _, _) >> Optional.empty()
-
         when:
         def travelTimeInMinutes = googleMapsApi.travelTimeInMinutes(WARSAW_POINT, PARIS_POINT, anyTravelMode)
 
@@ -71,22 +62,5 @@ class GoogleMapsApiTest extends Specification {
         travelTimeInMinutes == tripTimeInMinutes
     }
 
-    def "travel time estimation tries to get from cache"() {
-        when:
-        def travelTimeInMinutes = googleMapsApi.travelTimeInMinutes(WARSAW_POINT, PARIS_POINT, anyTravelMode)
-
-        then:
-        1 * routeCache.get(_, _, _) >> Optional.empty()
-    }
-
-    def "successful time estimation goes to cache"() {
-        when:
-        googleMapsApi.travelTimeInMinutes(WARSAW_POINT, PARIS_POINT, anyTravelMode)
-
-        then:
-        1 * routeCache.get(_, _, _) >> Optional.empty()
-        1 * routeCache.put(WARSAW_POINT, PARIS_POINT, tripTimeInMinutes, anyTravelMode)
-    }
-
-
+    //TODO test error handling
 }

@@ -13,15 +13,9 @@ import java.util.stream.DoubleStream
 @Service
 class InitialPointsServiceImpl implements InitialPointsService {
 
-    static double DRIVING_SPEED_METERS_PH = 50000D
+    static long NUMBER_OF_POINTS_FOR_HOUR_SEARCH = 72L
 
-    static double BIKING_SPEED_METERS_PH = 15000D
-
-    static double WALKING_SPEED_METERS_PH = 5000D
-
-    static long NUMBER_OF_POINTS_FOR_HOUR_SEARCH = 36L
-
-    static long MIN_NUMBER_OF_POINTS = 18L
+    static long MIN_NUMBER_OF_POINTS = 36L
 
     private GeoMath geoMath
 
@@ -35,7 +29,7 @@ class InitialPointsServiceImpl implements InitialPointsService {
         int numberOfPoints = getNumberOfInitialsPoints(timeInMinutes)
         double degreesPerPoint = 360.0 / numberOfPoints
 
-        double initialDistance = calculateInitialDistance(timeInMinutes, travelMode)
+        double initialDistance = timeInMinutes * travelMode.defaultSpeedPerMinute
 
         return calculateInitialPointsAroundStartingPoint(startingPoint, numberOfPoints, degreesPerPoint, initialDistance)
     }
@@ -58,14 +52,5 @@ class InitialPointsServiceImpl implements InitialPointsService {
                 .collect(Collectors.toList())
     }
 
-    private double calculateInitialDistance(long timeInMinutes, TravelMode travelMode) {
-        if (TravelMode.DRIVING.equals(travelMode)) {
-            return (DRIVING_SPEED_METERS_PH * timeInMinutes) / 60.0
-        } else if (TravelMode.BICYCLING.equals(travelMode)) {
-            return (BIKING_SPEED_METERS_PH * timeInMinutes) / 60.0
-        }
-
-        return (WALKING_SPEED_METERS_PH * timeInMinutes) / 60.0
-    }
 
 }

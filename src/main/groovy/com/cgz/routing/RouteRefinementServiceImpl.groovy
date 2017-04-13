@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
 @Service
 class RouteRefinementServiceImpl implements RouteRefinementService {
 
-    static final int MAX_ATTEMPTS = 5
+    static final int MAX_ATTEMPTS = 10
 
     private static final double CLOSE_ENOUGH_RESULT_EPSILON = 0.05
 
@@ -55,13 +55,22 @@ class RouteRefinementServiceImpl implements RouteRefinementService {
                                               Optional<Double> optionalTravelTimeInMinutes,
                                               double timeLimitInMinutes) {
 
+        double distance = lastOriginAndDestination.distanceInMeters
 
-        optionalTravelTimeInMinutes.map({ travelTimeInMinutes ->
-            double distance = lastOriginAndDestination.distanceInMeters
+        optionalTravelTimeInMinutes.map({ avoidZeroValue(it) }).map({ travelTimeInMinutes ->
             double velocity = distance / travelTimeInMinutes
             double newDistance = timeLimitInMinutes * velocity
             geoMath.getNewPointPair(lastOriginAndDestination.origin, newDistance, lastOriginAndDestination.azimuthInDegres)
-        }).orElse(lastOriginAndDestination)
+        }).orElseGet({
+            geoMath.getNewPointPair(lastOriginAndDestination.origin, distance / 2, lastOriginAndDestination.azimuthInDegres)
+        })
+    }
+
+    private Double avoidZeroValue(Double time) {
+        if (time == 0) {
+            return 0.01
+        }
+        return time
     }
 
     private Optional<Double> executeRoutingService(Point origin, Point newDestination, TravelMode travelMode) {

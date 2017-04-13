@@ -7,7 +7,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 import static com.cgz.Location.PARIS
-import static com.cgz.geo.InitialPointsServiceImpl.*
+import static com.cgz.geo.InitialPointsServiceImpl.getNUMBER_OF_POINTS_FOR_HOUR_SEARCH
 import static org.assertj.core.api.Assertions.assertThat
 
 class InitialPointsServiceImplTest extends Specification {
@@ -65,11 +65,9 @@ class InitialPointsServiceImplTest extends Specification {
 
         where:
         time     | travelMode           || initialDistance
-        HOUR     | TravelMode.DRIVING   || DRIVING_SPEED_METERS_PH
-        HOUR     | TravelMode.BICYCLING || BIKING_SPEED_METERS_PH
-        HOUR     | TravelMode.WALKING   || WALKING_SPEED_METERS_PH
-        2 * HOUR | TravelMode.DRIVING   || 2 * DRIVING_SPEED_METERS_PH
-        2 * HOUR | TravelMode.BICYCLING || 2 * BIKING_SPEED_METERS_PH
-        2 * HOUR | TravelMode.WALKING   || 2 * WALKING_SPEED_METERS_PH
+        HOUR     | TravelMode.DRIVING   || TravelMode.DRIVING.defaultSpeedPerMinute
+        2 * HOUR | TravelMode.WALKING   || 2 * TravelMode.WALKING.defaultSpeedPerMinute
+        3 * HOUR | TravelMode.BICYCLING || 3 * TravelMode.BICYCLING.defaultSpeedPerMinute
+
     }
 }

@@ -22,21 +22,18 @@ class GoogleMapsApi implements RoutingService {
 
     private static volatile int counter = 0
 
-    private RouteCache cache;
-
     @Autowired
     GoogleMapsApi(
             @Value('${GoogleMapsApi.apiKey}') String apikey,
-            @Value('${GoogleMapsApi.apiHost}') String apiHost, RouteCache cache) {
+            @Value('${GoogleMapsApi.apiHost}') String apiHost) {
+
         urlTemplate = "${apiHost}/maps/api/directions/json?key=${apikey}&alternatives=false&traffic_model=optimistic&departure_time=now&"
-        this.cache = cache;
     }
 
     @Override
     long travelTimeInMinutes(Point origin, Point destination, TravelMode travelMode) {
 
-        Optional<Long> result = cache.get(origin, destination, travelMode)
-        return result.orElseGet({ invokeService(origin, destination, travelMode) })
+        invokeService(origin, destination, travelMode)
     }
 
     private long invokeService(Point origin, Point destination, TravelMode travelMode) {
@@ -44,8 +41,9 @@ class GoogleMapsApi implements RoutingService {
             URL url = constructUrl(origin, destination, travelMode)
             DocumentContext json = httpGetForJson(url)
             long timeInMinutes = readTimeInMinutes(json)
-            cache.put(origin, destination, timeInMinutes, travelMode)
             return timeInMinutes
+        } catch (RoutingServiceException rse) {
+            throw rse
         } catch (Exception e) {
             throw new RoutingServiceException("Could not read json", e)
         }

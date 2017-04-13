@@ -36,8 +36,8 @@ class RouteRefinementServiceImplTest extends Specification {
         routeRefinementService.refinePoints(someOriginAndDest, HOUR, anyTravelMode)
 
         then:
-        4 * routingService.travelTimeInMinutes(someOriginAndDest.origin, someOriginAndDest.destination, anyTravelMode) >>> [3 * HOUR, 2 * HOUR, 0.5 * HOUR, 1 * HOUR]
-        3 * geoMath.getNewPointPair(_, _, AZIMUTH) >> someOriginAndDest
+        3 * routingService.travelTimeInMinutes(someOriginAndDest.origin, someOriginAndDest.destination, anyTravelMode) >>> [2 * HOUR, 3 * HOUR, 1 * HOUR]
+        2 * geoMath.getNewPointPair(_, _, AZIMUTH) >> someOriginAndDest
     }
 
     def "refines destination"() {
@@ -68,5 +68,8 @@ class RouteRefinementServiceImplTest extends Specification {
 
     }
 
+//    TODO TEST optionalTravelTimeInMinutes == 0
+//    TODO TEST error haning
 }
+
 
