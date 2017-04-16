@@ -13,9 +13,9 @@ import java.util.stream.DoubleStream
 @Service
 class InitialPointsServiceImpl implements InitialPointsService {
 
-    static long NUMBER_OF_POINTS_FOR_HOUR_SEARCH = 72L
+    static long NUMBER_OF_POINTS_FOR_HOUR_SEARCH = 36L
 
-    static long MIN_NUMBER_OF_POINTS = 36L
+    static long MIN_NUMBER_OF_POINTS = 18L
 
     private GeoMath geoMath
 

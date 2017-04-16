@@ -1,6 +1,6 @@
 package com.cgz.routing
 
-import com.cgz.routing.googlemaps.GoogleMapsApi
+import com.cgz.routing.googlemaps.GoogleMapsRoutingService
 import com.jayway.jsonpath.JsonPath
 import spock.lang.Shared
 import spock.lang.Specification
@@ -8,7 +8,7 @@ import spock.lang.Specification
 import static com.cgz.Location.PARIS_POINT
 import static com.cgz.Location.WARSAW_POINT
 
-class GoogleMapsApiTest extends Specification {
+class GoogleMapsRoutingServiceTest extends Specification {
 
     @Shared
     String apiKey = 'someKey'
@@ -26,7 +26,7 @@ class GoogleMapsApiTest extends Specification {
 
     def json = JsonPath.parse(jsonString)
 
-    GoogleMapsApi googleMapsApi = Spy(GoogleMapsApi, constructorArgs: [apiKey, apiHost]) {
+    GoogleMapsRoutingService googleMapsApi = Spy(GoogleMapsRoutingService, constructorArgs: [apiKey, apiHost]) {
         httpGetForJson(_) >> json
     }
 
@@ -62,5 +62,14 @@ class GoogleMapsApiTest extends Specification {
         travelTimeInMinutes == tripTimeInMinutes
     }
 
-    //TODO test error handling
+//    def "returns infinity when zero results"() {
+//        when:
+//        GoogleMapsRoutingService googleMapsApi = Spy(GoogleMapsRoutingService, constructorArgs: [apiKey, apiHost]) {
+//            httpGetForJson(_) >> json
+//        }
+//    }
+//
+//    def "throws error when when no routr and missing empty resoults"() {
+//
+//    }
 }

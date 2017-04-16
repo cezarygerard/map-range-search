@@ -37,11 +37,12 @@
     }
 
     function initMap(coords) {
-        console.log(coords)
-        console.log(coords.coords)
-        var position = {lat: coords.coords.latitude, lng: coords.coords.longitude}
+        console.log(coords);
+        console.log(coords.coords);
+        var position = {lat: coords.coords.latitude, lng: coords.coords.longitude};
         var triangleCoords = [];
         drawMap(position, triangleCoords);
+
     }
 
     function drawMap(position, triangleCoords) {
@@ -49,7 +50,6 @@
         var map = new google.maps.Map(document.getElementById('map'), {
             zoom: 10,
             center: position
-
         });
 
         // Construct the polygon.
