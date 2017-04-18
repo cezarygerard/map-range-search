@@ -13,9 +13,11 @@ import java.util.stream.DoubleStream
 @Service
 class InitialPointsServiceImpl implements InitialPointsService {
 
-    static long NUMBER_OF_POINTS_FOR_HOUR_SEARCH = 36L
+    //TODO make it injectable
+    static long NUMBER_OF_POINTS_FOR_HOUR_SEARCH = 54L
 
-    static long MIN_NUMBER_OF_POINTS = 18L
+    //TODO make it injectable
+    static long MIN_NUMBER_OF_POINTS = 36L
 
     private GeoMath geoMath
 
@@ -31,7 +33,8 @@ class InitialPointsServiceImpl implements InitialPointsService {
 
         double initialDistance = timeInMinutes * travelMode.defaultSpeedPerMinute
 
-        return calculateInitialPointsAroundStartingPoint(startingPoint, numberOfPoints, degreesPerPoint, initialDistance)
+        def var = calculateInitialPointsAroundStartingPoint(startingPoint, numberOfPoints, degreesPerPoint, initialDistance)
+        return var;
     }
 
 

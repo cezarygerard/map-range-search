@@ -3,6 +3,8 @@ package com.cgz
 import com.cgz.geo.GeoServiceImpl
 import com.cgz.geomath.Point
 import com.cgz.routing.TravelMode
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
@@ -16,6 +18,8 @@ import javax.servlet.http.HttpServletResponse
  */
 @RestController
 class MapController {
+
+    static private final Logger logger = LoggerFactory.getLogger(MapController);
 
     private GeoServiceImpl geoService
 
@@ -42,7 +46,7 @@ class MapController {
             handleInvalidRequest(httpServletResponse)
         })
 
-        println(System.currentTimeMillis() - millis)
+        logger.info("${System.currentTimeMillis() - millis}")
         return result
     }
 

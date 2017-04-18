@@ -36,6 +36,9 @@ class RouteRefinementServiceImpl implements RouteRefinementService {
 
         PointPair lastDestination = originAndDestination
 
+        PointPair bestMatch = originAndDestination
+        Optional<Double> closestTime = travelTimeInMinutes
+
         while (shouldRefine(timeLimitInMinutes, travelTimeInMinutes, attempts)) {
             PointPair newDestination = calculateNewDestination(lastDestination,
                     travelTimeInMinutes,
@@ -45,10 +48,30 @@ class RouteRefinementServiceImpl implements RouteRefinementService {
 
             lastDestination = newDestination
 
+            //TODO remember best match
+            //TODO TDD this!
+            if (isBetterMatch(closestTime, travelTimeInMinutes, timeLimitInMinutes)) {
+                bestMatch = newDestination
+                closestTime = travelTimeInMinutes
+                logger.info "best match: ${bestMatch} time: ${closestTime}"
+            }
+
             attempts++
+
         }
 
-        return lastDestination.destination
+        logger.info "DONE best match: ${bestMatch} time: ${closestTime}"
+        return bestMatch.destination
+    }
+
+    boolean isBetterMatch(Optional<Double> best, Optional<Double> current, double idealTime) {
+        if (best.present && current.present) {
+            if (Math.abs(best.get() - idealTime) > Math.abs(current.get() - idealTime)) {
+                return true;
+            }
+        }
+        return false;
+
     }
 
     private PointPair calculateNewDestination(PointPair lastOriginAndDestination,
@@ -61,14 +84,16 @@ class RouteRefinementServiceImpl implements RouteRefinementService {
             double velocity = distance / travelTimeInMinutes
             double newDistance = timeLimitInMinutes * velocity
             geoMath.getNewPointPair(lastOriginAndDestination.origin, newDistance, lastOriginAndDestination.azimuthInDegres)
+//            TODO try some binary search here
         }).orElseGet({
             geoMath.getNewPointPair(lastOriginAndDestination.origin, distance / 2, lastOriginAndDestination.azimuthInDegres)
         })
     }
 
     private Double avoidZeroValue(Double time) {
-        if (time == 0) {
-            return 0.01
+        if (time < 1.0) {
+            logger.info "got very small time: ${time}"
+            return 1.0
         }
         return time
     }

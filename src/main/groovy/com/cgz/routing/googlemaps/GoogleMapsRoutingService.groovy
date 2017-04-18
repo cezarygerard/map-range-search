@@ -8,6 +8,8 @@ import com.jayway.jsonpath.Configuration
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
 import com.jayway.jsonpath.Option
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Service
 class GoogleMapsRoutingService implements RoutingService {
 
     private final String urlTemplate
+
+    private static final Logger logger = LoggerFactory.getLogger(GoogleMapsRoutingService);
 
     protected static final JsonPath DURATION_JSON_PATH = JsonPath.compile('routes[0].legs[0].duration.value')
 
@@ -37,16 +41,17 @@ class GoogleMapsRoutingService implements RoutingService {
     }
 
     @Override
-    long travelTimeInMinutes(Point origin, Point destination, TravelMode travelMode) {
-
+    double travelTimeInMinutes(Point origin, Point destination, TravelMode travelMode) {
         invokeService(origin, destination, travelMode)
     }
 
-    private long invokeService(Point origin, Point destination, TravelMode travelMode) {
+    private double invokeService(Point origin, Point destination, TravelMode travelMode) {
         try {
             URL url = constructUrl(origin, destination, travelMode)
             DocumentContext json = httpGetForJson(url)
-            long timeInMinutes = readTimeInMinutes(json)
+            logger.info("Executed GoogleMapsApi: ${origin} ${destination} ${url}")
+            double timeInMinutes = readTimeInMinutes(json)
+            logger.info("time: ${timeInMinutes}")
             return timeInMinutes
         } catch (RoutingServiceException rse) {
             throw rse
@@ -55,16 +60,16 @@ class GoogleMapsRoutingService implements RoutingService {
         }
     }
 
-    private long readTimeInMinutes(DocumentContext json) {
+    private double readTimeInMinutes(DocumentContext json) {
         try {
-            //TODO https://github.com/json-path/JsonPath/issues/78
-            //com.jayway.jsonpath.Configuration
-            //TODO read no routes present
-            Long timeInSeconds = json.read(DURATION_JSON_PATH)
+            //TODO read no routes present, return meaningful answer
+            //TODO read rate exeeded and retry
+            Double timeInSeconds = json.read(DURATION_JSON_PATH)
             if (timeInSeconds == null) {
-                return Long.MAX_VALUE
+                logger.info "strange json, returned  Double.MAX_VALUE. ${json.jsonString()}"
+                return Double.MAX_VALUE
             }
-            return timeInSeconds / 60
+            return timeInSeconds / 60.0
         } catch (Exception e) {
             throw new RoutingServiceException("Could not read json ${json.jsonString()}", e)
         }
@@ -72,7 +77,8 @@ class GoogleMapsRoutingService implements RoutingService {
 
     protected DocumentContext httpGetForJson(URL url) {
         counter++
-        println("Executed GoogleMapsApi: " + counter)
+        logger.info("Executed GoogleMapsApi: " + counter)//THINK over thi
+
         url.withInputStream { inputStream ->
             JsonPath.parse(inputStream, jsonPrserConfiguration)
         }
@@ -86,3 +92,4 @@ class GoogleMapsRoutingService implements RoutingService {
         new URL(urlString)
     }
 }
+

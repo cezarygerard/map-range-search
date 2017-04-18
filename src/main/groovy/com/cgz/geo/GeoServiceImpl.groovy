@@ -17,7 +17,7 @@ class GeoServiceImpl implements GeoService {
 
     private RouteRefinementService routingService
 
-    private ExecutorService executor = Executors.newCachedThreadPool()
+    private ExecutorService executor = Executors.newFixedThreadPool(10)
 
     private InitialPointsService initialPointsDistributionService
 
