@@ -34,44 +34,46 @@ class RouteRefinementServiceImpl implements RouteRefinementService {
 
         int attempts = 1
 
-        PointPair lastDestination = originAndDestination
-
         PointPair bestMatch = originAndDestination
         Optional<Double> closestTime = travelTimeInMinutes
 
         while (shouldRefine(timeLimitInMinutes, travelTimeInMinutes, attempts)) {
-            PointPair newDestination = calculateNewDestination(lastDestination,
+            originAndDestination = calculateNewDestination(originAndDestination,
                     travelTimeInMinutes,
                     timeLimitInMinutes)
 
-            travelTimeInMinutes = executeRoutingService(originAndDestination.origin, newDestination.destination, travelMode)
+            travelTimeInMinutes = executeRoutingService(originAndDestination.origin, originAndDestination.destination, travelMode)
 
-            lastDestination = newDestination
-
-            //TODO remember best match
-            //TODO TDD this!
-            if (isBetterMatch(closestTime, travelTimeInMinutes, timeLimitInMinutes)) {
-                bestMatch = newDestination
-                closestTime = travelTimeInMinutes
-                logger.info "best match: ${bestMatch} time: ${closestTime}"
-            }
+            (closestTime, bestMatch) = checkIfBestMatch(closestTime, travelTimeInMinutes, timeLimitInMinutes, originAndDestination, bestMatch)
 
             attempts++
-
         }
 
         logger.info "DONE best match: ${bestMatch} time: ${closestTime}"
         return bestMatch.destination
     }
 
+    private List checkIfBestMatch(Optional<Double> closestTime,
+                                  Optional<Double> travelTimeInMinutes,
+                                  double timeLimitInMinutes,
+                                  PointPair newDestination,
+                                  PointPair bestMatch) {
+
+        if (isBetterMatch(closestTime, travelTimeInMinutes, timeLimitInMinutes)) {
+            bestMatch = newDestination
+            closestTime = travelTimeInMinutes
+            logger.info "best match: ${bestMatch} time: ${closestTime}"
+        }
+        [closestTime, bestMatch]
+    }
+
     boolean isBetterMatch(Optional<Double> best, Optional<Double> current, double idealTime) {
         if (best.present && current.present) {
             if (Math.abs(best.get() - idealTime) > Math.abs(current.get() - idealTime)) {
-                return true;
+                return true
             }
         }
-        return false;
-
+        return false
     }
 
     private PointPair calculateNewDestination(PointPair lastOriginAndDestination,

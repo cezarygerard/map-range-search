@@ -11,13 +11,13 @@ import static com.cgz.Location.PARIS
 import static com.cgz.Location.WARSAW_POINT
 import static org.assertj.core.api.Assertions.assertThat
 
-class GeoServiceImplTest extends Specification {
+class GeoRangeSearchServiceImplTest extends Specification {
 
     RouteRefinementService routingService = Mock(RouteRefinementService)
 
     InitialPointsService initialPointsService = Mock(InitialPointsService)
 
-    GeoServiceImpl geoService = new GeoServiceImpl(routingService, initialPointsService)
+    GeoRangeSearchServiceImpl geoService = new GeoRangeSearchServiceImpl(routingService, initialPointsService)
 
     PointPair somePointPair = new PointPair(PARIS.asPoint(), PARIS.asPoint(), 0, 0)
 

@@ -13,7 +13,7 @@ import java.util.concurrent.Executors
 import java.util.stream.Collectors
 
 @Service
-class GeoServiceImpl implements GeoService {
+class GeoRangeSearchServiceImpl implements GeoRangeSearchService {
 
     private RouteRefinementService routingService
 
@@ -22,8 +22,8 @@ class GeoServiceImpl implements GeoService {
     private InitialPointsService initialPointsDistributionService
 
     @Autowired
-    GeoServiceImpl(RouteRefinementService routingService,
-                   InitialPointsService initialPointsDistributionService) {
+    GeoRangeSearchServiceImpl(RouteRefinementService routingService,
+                              InitialPointsService initialPointsDistributionService) {
         this.routingService = routingService
         this.initialPointsDistributionService = initialPointsDistributionService
     }
