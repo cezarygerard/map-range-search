@@ -1,11 +1,8 @@
 package com.cgz.geomath
 
-import org.springframework.stereotype.Component
-
 /**
  * Created by czarek on 04.02.17.
  */
-@Component
 class GeoMathUtilityService implements GeoMath {
 
     private static final double EARTH_RADIUS_IN_METERS = 6378137

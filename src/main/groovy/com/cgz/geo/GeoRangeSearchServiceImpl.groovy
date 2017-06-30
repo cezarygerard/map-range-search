@@ -4,15 +4,12 @@ import com.cgz.geomath.Point
 import com.cgz.geomath.PointPair
 import com.cgz.routing.RouteRefinementService
 import com.cgz.routing.TravelMode
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
 
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.stream.Collectors
 
-@Service
 class GeoRangeSearchServiceImpl implements GeoRangeSearchService {
 
     private RouteRefinementService routingService
@@ -21,7 +18,6 @@ class GeoRangeSearchServiceImpl implements GeoRangeSearchService {
 
     private InitialPointsService initialPointsDistributionService
 
-    @Autowired
     GeoRangeSearchServiceImpl(RouteRefinementService routingService,
                               InitialPointsService initialPointsDistributionService) {
         this.routingService = routingService

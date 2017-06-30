@@ -5,10 +5,7 @@ import com.cgz.geomath.Point
 import com.cgz.geomath.PointPair
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
 
-@Service
 class RouteRefinementServiceImpl implements RouteRefinementService {
 
     static final int MAX_ATTEMPTS = 10
@@ -21,7 +18,6 @@ class RouteRefinementServiceImpl implements RouteRefinementService {
 
     private static final Logger logger = LoggerFactory.getLogger(RouteRefinementServiceImpl);
 
-    @Autowired
     RouteRefinementServiceImpl(RoutingService routingService, GeoMath geoMath) {
         this.routingService = routingService
         this.geoMath = geoMath

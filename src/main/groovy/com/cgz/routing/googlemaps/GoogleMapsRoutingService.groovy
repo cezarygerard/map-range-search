@@ -10,14 +10,11 @@ import com.jayway.jsonpath.JsonPath
 import com.jayway.jsonpath.Option
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Service
+
 
 /**
  * Created by czarek on 04.02.17.
  */
-@Service
 class GoogleMapsRoutingService implements RoutingService {
 
     private final String urlTemplate
@@ -30,10 +27,9 @@ class GoogleMapsRoutingService implements RoutingService {
 
     protected Configuration jsonPrserConfiguration
 
-    @Autowired
     GoogleMapsRoutingService(
-            @Value('${GoogleMapsApi.apiKey}') String apikey,
-            @Value('${GoogleMapsApi.apiHost}') String apiHost) {
+            /*@Value('${GoogleMapsApi.apiKey}')*/ String apikey,
+            /*@Value('${GoogleMapsApi.apiHost}')*/ String apiHost) {
 
         urlTemplate = "${apiHost}/maps/api/directions/json?key=${apikey}&alternatives=false&traffic_model=optimistic&departure_time=now&"
 

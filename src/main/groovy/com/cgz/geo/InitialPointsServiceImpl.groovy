@@ -4,13 +4,10 @@ import com.cgz.geomath.GeoMath
 import com.cgz.geomath.Point
 import com.cgz.geomath.PointPair
 import com.cgz.routing.TravelMode
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
 
 import java.util.stream.Collectors
 import java.util.stream.DoubleStream
 
-@Service
 class InitialPointsServiceImpl implements InitialPointsService {
 
     //TODO make it injectable
@@ -21,7 +18,6 @@ class InitialPointsServiceImpl implements InitialPointsService {
 
     private GeoMath geoMath
 
-    @Autowired
     InitialPointsServiceImpl(GeoMath geoMath) {
         this.geoMath = geoMath
     }
