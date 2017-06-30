@@ -13,9 +13,6 @@ import org.springframework.web.bind.annotation.RestController
 
 import javax.servlet.http.HttpServletResponse
 
-/**
- * Created by czarek on 03.02.17.
- */
 @RestController
 class MapController {
 
@@ -32,8 +29,7 @@ class MapController {
     List<Point> getPoints(@RequestParam double latitude,
                           @RequestParam double longitude,
                           @RequestParam long timeInMinutes,
-                          @RequestParam String travelMode,
-                          HttpServletResponse httpServletResponse
+                          @RequestParam String travelMode
     ) {
 
         def millis = System.currentTimeMillis()
@@ -43,7 +39,7 @@ class MapController {
 
         def result = mode.map({ tm -> geoService.search(from, timeInMinutes, tm) })
                 .orElseGet({
-            handleInvalidRequest(httpServletResponse)
+            throw new RuntimeException()
         })
 
         logger.info("${System.currentTimeMillis() - millis}")
@@ -55,4 +51,12 @@ class MapController {
         Collections.<Point> emptyList()
     }
 
+    List<Point> getPoints(Map<String, String> queryParams) {
+        def latitude = Double.parseDouble(queryParams.get("latitude"))
+        def longitude = Double.parseDouble(queryParams.get("longitude"))
+        def timeInMinutes = Long.parseLong(queryParams.get("timeInMinutes"))
+        def travelMode = queryParams.get("travelMode")
+
+        return getPoints(latitude, longitude, timeInMinutes, travelMode)
+    }
 }

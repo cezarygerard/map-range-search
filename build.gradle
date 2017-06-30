@@ -1,18 +1,18 @@
 buildscript {
-	ext {
-		springBootVersion = '1.5.1.RELEASE'
-	}
-	repositories {
-		mavenCentral()
+    ext {
+        springBootVersion = '1.5.1.RELEASE'
+    }
+    repositories {
+        mavenCentral()
         maven { url 'http://oss.sonatype.org/content/repositories/snapshots/' }
         maven {
             url "https://plugins.gradle.org/m2/"
         }
-	}
-	dependencies {
+    }
+    dependencies {
         classpath('org.codehaus.groovy:groovy-all:2.4.7')
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-	}
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
 }
 
 apply plugin: 'groovy'
@@ -21,34 +21,50 @@ apply plugin: 'idea'
 //apply plugin: 'info.solidsoft.pitest'
 
 jar {
-	baseName = 'RangeMap'
-	version = '0.0.1-SNAPSHOT'
+    baseName = 'RangeMap'
+    version = '0.0.1-SNAPSHOT'
 }
 
 sourceCompatibility = 1.8
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 
 dependencies {
-	compile('org.springframework.boot:spring-boot-starter-actuator')
-	compile('org.springframework.boot:spring-boot-actuator-docs')
-	compile('org.springframework.boot:spring-boot-starter-web')
-	compile('org.codehaus.groovy:groovy-all:2.4.7')
-	compile 'com.google.guava:guava:21.0'
-	compile('com.jayway.jsonpath:json-path:2.2.0')
+    compile(
+            'org.springframework.boot:spring-boot-starter-actuator',
+            'org.springframework.boot:spring-boot-actuator-docs',
+            'org.springframework.boot:spring-boot-starter-web',
+            'org.codehaus.groovy:groovy-all:2.4.7',
+            'com.google.guava:guava:21.0',
+            'com.jayway.jsonpath:json-path:2.2.0',
+            'com.amazonaws:aws-lambda-java-core:1.1.0',
+            'com.amazonaws:aws-lambda-java-log4j:1.0.0',
+    )
 
-	testCompile('org.springframework.boot:spring-boot-starter-test')
-	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
     testCompile(
-                'junit:junit:4.12',
-                'org.codehaus.groovy:groovy-all:2.4.4',
-                'org.spockframework:spock-core:1.0-groovy-2.4'
-        )
-    testCompile('org.assertj:assertj-core:3.6.2')
-	testCompile "com.github.tomakehurst:wiremock-standalone:2.5.1"
-	testRuntime "cglib:cglib-nodep:3.2.4"
-//    classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.1.11'
+            'junit:junit:4.12',
+            'org.codehaus.groovy:groovy-all:2.4.4',
+            'org.spockframework:spock-core:1.0-groovy-2.4',
+            'org.springframework.boot:spring-boot-starter-test',
+            'org.springframework.restdocs:spring-restdocs-mockmvc',
+            'org.assertj:assertj-core:3.6.2',
+            'com.github.tomakehurst:wiremock-standalone:2.5.1',
+            'cglib:cglib-nodep:3.2.4'
+    )
 }
+
+task buildZip(type: Zip) {
+    baseName = "java-with-spring"
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtime
+    }
+}
+
+build.dependsOn buildZip
+
+

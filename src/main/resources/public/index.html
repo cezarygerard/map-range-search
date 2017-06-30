@@ -19,6 +19,7 @@
             padding: 0;
         }
     </style>
+
 </head>
 <body>
 <div id="map"></div>
@@ -34,6 +35,14 @@
         } else {
             initMap(cdefaultCords);
         }
+
+        $.ajax({
+            type: "GET",
+            url: "https://lvey4mvfh3.execute-api.eu-central-1.amazonaws.com/dev",
+            success: function () {
+                console.log('initiated IN initGeolocation')
+            }
+        });
     }
 
     function initMap(coords) {
@@ -107,7 +116,7 @@
 
         $.ajax({
             type: "GET",
-            url: "/timedRange",
+            url: "https://lvey4mvfh3.execute-api.eu-central-1.amazonaws.com/dev",
             data: form.serialize(), // serializes the form's elements.
             success: function (data) {
                 var position = {lat: latitude, lng: longitude}
@@ -116,7 +125,6 @@
         });
 
     }
-
 
 </script>
 <script async defer

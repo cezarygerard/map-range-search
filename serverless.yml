@@ -1,0 +1,21 @@
+service: java-with-spring
+
+frameworkVersion: ">=1.2.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: java8
+  region: eu-central-1
+  timeout: 300
+  memorySize: 1536
+  
+package:
+  artifact: build/distributions/java-with-spring.zip
+
+functions:
+  currentTime:
+    handler: com.cgz.Handler
+    events:
+      - http:
+          path: /
+          method: any
