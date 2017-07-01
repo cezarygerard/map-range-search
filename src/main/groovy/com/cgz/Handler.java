@@ -2,22 +2,17 @@ package com.cgz;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.cgz.geomath.Point;
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Handler implements RequestHandler<Map<String, Object>, ApiGatewayResponse> {
 
     private static final Logger LOG = Logger.getLogger(Handler.class);
-
-//    private static ApplicationContext applicationContext;
-//
-//    public static void main(String[] args) throws Exception {
-//        SpringApplication app = new SpringApplication(Handler.class);
-//        app.setWebEnvironment(false);
-//        applicationContext = app.run(new String[0]);
-//    }
 
     @Override
     public ApiGatewayResponse handleRequest(Map<String, Object> input, Context context) {
@@ -27,24 +22,24 @@ public class Handler implements RequestHandler<Map<String, Object>, ApiGatewayRe
         headers.put("Access-Control-Allow-Origin", "*");
 
 
-//        try {
-//            MapController mapController = applicationContext.getBean(MapController.class);
-//            Map<String, String> queryParams = (Map<String, String>) input.get("queryStringParameters");
-//
-//            List<Point> result = new ArrayList<>();
-//            if (queryParams != null && queryParams.size() == 4) {
-//                result = mapController.getPoints(queryParams);
-//            }
-//
-//            return ApiGatewayResponse.builder()
-//                    .setStatusCode(200)
-//                    .setObjectBody(result)
-//                    .setHeaders(headers)
-//                    .build();
-//        } catch (Exception e) {
-//            LOG.error("Error: " + e);
-//            e.printStackTrace();
-//        }
+        try {
+            MapController mapController = UglyApplicationContext.getInstance().getMapController();
+            Map<String, String> queryParams = (Map<String, String>) input.get("queryStringParameters");
+
+            List<Point> result = new ArrayList<>();
+            if (queryParams != null && queryParams.size() == 4) {
+                result = mapController.getPoints(queryParams);
+            }
+
+            return ApiGatewayResponse.builder()
+                    .setStatusCode(200)
+                    .setObjectBody(result)
+                    .setHeaders(headers)
+                    .build();
+        } catch (Exception e) {
+            LOG.error("Error: " + e);
+            e.printStackTrace();
+        }
 
         return ApiGatewayResponse.builder()
                 .setStatusCode(400)

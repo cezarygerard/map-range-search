@@ -2,12 +2,9 @@ package com.cgz
 
 import com.cgz.geomath.Point
 
-/**
- * Created by czarek on 04.02.17.
- */
 enum Location {
     WARSAW(52.2297, 21.0122),
-    PARIS(48.85341, 2.3488000);
+    PARIS(48.85341, 2.3488000)
 
     public static final WARSAW_POINT = WARSAW.asPoint()
     public static final PARIS_POINT = PARIS.asPoint()

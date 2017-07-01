@@ -1,6 +1,6 @@
 package com.cgz
 
-import com.cgz.geo.GeoRangeSearchServiceImpl
+import com.cgz.geo.GeoRangeSearchService
 import com.cgz.geomath.Point
 import com.cgz.routing.TravelMode
 import org.slf4j.Logger
@@ -10,9 +10,9 @@ class MapController {
 
     static private final Logger logger = LoggerFactory.getLogger(MapController)
 
-    private GeoRangeSearchServiceImpl geoService
+    private GeoRangeSearchService geoService
 
-    MapController(GeoRangeSearchServiceImpl geoService) {
+    MapController(GeoRangeSearchService geoService) {
         this.geoService = geoService
     }
 
