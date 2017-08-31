@@ -4,5 +4,4 @@ This simple serverless app lets you find out how far you can drive/cycle/walk fr
 Created with serverless framework, hosted on AWS S3 and AWS Lambda
 
 
-Try it out!
-bit.ly/rangeMap2
+[Try it out!] (https://bit.ly/rangeMap2)
